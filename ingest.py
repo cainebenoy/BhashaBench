@@ -10,8 +10,13 @@ def fetch_indicqa_data(language_code="ml"):
     print(f"📥 Fetching IndicQA dataset for language: '{language_code}'...")
     
     try:
-        # Load the specific language subset from the AI4Bharat benchmark
-        dataset = load_dataset("ai4bharat/IndicQA", language_code, split="test")
+        # Added trust_remote_code=True to satisfy Hugging Face's new security policy
+        dataset = load_dataset(
+            "ai4bharat/IndicQA", 
+            f"indicqa.{language_code}",  # <--- ADDED 'indicqa.' PREFIX
+            split="test", 
+            trust_remote_code=True
+        )
         df = dataset.to_pandas()
         
         print(f"✅ Successfully loaded {len(df)} QA pairs.")
