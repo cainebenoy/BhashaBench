@@ -2,6 +2,7 @@ import os
 import requests
 import json
 import time
+import sacrebleu
 
 API_URL = "https://cainebenoy-bhashadocs-api.hf.space/api/translate-text"
 
@@ -48,7 +49,6 @@ def translate_via_bhashadocs(text, target_lang="mal_Mlym"):
                 try:
                     chunk_data = json.loads(decoded_line)
                     
-                    # Intercept telemetry errors from our new safe wrapper
                     if "error" in chunk_data:
                         print(f"❌ SERVER-SIDE ERROR: {chunk_data['error']}")
                         return None
@@ -65,10 +65,13 @@ def translate_via_bhashadocs(text, target_lang="mal_Mlym"):
 
 def run_benchmark(target_lang="mal_Mlym"):
     """
-    Runs the BhashaBench English-to-Indic evaluation pipeline.
+    Runs the BhashaBench English-to-Indic evaluation pipeline and calculates chrF scores.
     """
-    print(f"🚀 Starting BhashaBench MT Evaluation...")
+    print(f"🚀 Starting BhashaBench MT Evaluation with chrF Scoring...")
     print("==================================================================\n")
+    
+    predictions = []
+    references = []
     
     for row in EVAL_DATA:
         print(f"📋 [Sample {row['id']}/3]")
@@ -77,18 +80,29 @@ def run_benchmark(target_lang="mal_Mlym"):
         print("⏳ Querying BhashaDocs API for translation...")
         start_time = time.time()
         
-        # Translate English -> Malayalam
         model_translation = translate_via_bhashadocs(row['en'], target_lang=target_lang)
-        
         elapsed = time.time() - start_time
         
+        if not model_translation:
+            model_translation = ""
+            
         print(f"⏱️ API Latency: {elapsed:.2f} seconds")
         print(f"🤖 Model Output (ML): {model_translation}")
         print(f"🎯 Ground Truth (ML): {row['ml_reference']}")
         print("-" * 60 + "\n")
         
+        predictions.append(model_translation)
+        references.append(row['ml_reference'])
+        
         time.sleep(2)
+        
+    print("📊 Calculating Batch Metrics...")
+    # Calculate chrF score (Character n-gram F-score)
+    chrf = sacrebleu.corpus_chrf(predictions, [references])
+    
+    print("\n==================================================================")
+    print(f"🏆 Final Batch chrF Score: {chrf.score:.2f} / 100")
+    print("==================================================================\n")
 
 if __name__ == "__main__":
-    # Test English to Malayalam
     run_benchmark(target_lang="mal_Mlym")
