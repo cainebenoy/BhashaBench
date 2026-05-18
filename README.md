@@ -1,4 +1,6 @@
-## 🧪 BhashaBench: MLOps & Evaluation Pipeline
+# BhashaBench
+
+## 🧪 MLOps & Evaluation Pipeline
 
 To ensure the BhashaDocs API delivers production-grade, state-of-the-art translation accuracy, this project includes **BhashaBench**—a custom MLOps evaluation framework.
 
@@ -21,3 +23,37 @@ Rather than relying on basic string matching, BhashaBench stress-tests the live 
 ### 🎓 Project Context
 
 BhashaDocs and the BhashaBench testing suite were engineered from the ground up as a complete, full-stack machine learning portfolio piece for a final-year Bachelor of Computer Applications (BCA) capstone at Sahrdaya College of Advanced Studies. It demonstrates the complete AI lifecycle: from responsive front-end design to asynchronous cloud inference and rigorous mathematical validation.
+
+---
+
+## 📦 Setup & Usage
+
+### Prerequisites
+- Python 3.8+
+- `sacrebleu` (for chrF scoring)
+- `requests` (for API calls)
+- Access to the live BhashaDocs API
+
+### Files
+
+| File | Purpose |
+| --- | --- |
+| `ingest.py` | Loads and prepares reference translations from OPUS-100 corpus |
+| `evaluate.py` | Single-request evaluation against the BhashaDocs API |
+| `evaluate_batch.py` | Batch evaluation across multiple samples with result aggregation |
+| `data/indicqa_ml.csv` | Reference dataset (English-Malayalam pairs) |
+| `results/` | Output directory for evaluation results and scores |
+
+### Running Evaluations
+
+**Single Evaluation:**
+```bash
+python evaluate.py
+```
+
+**Batch Evaluation:**
+```bash
+python evaluate_batch.py
+```
+
+Results are logged to `results/` with detailed chrF score breakdowns and latency metrics.
